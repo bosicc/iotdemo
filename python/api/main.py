@@ -24,7 +24,21 @@ app = Flask(__name__)
 @app.route('/')
 def hello():
     """Return a friendly HTTP greeting."""
-    return 'Hello World!'
+    return 'Our IoT demo REST API server is working!'
+
+
+@app.route('/api/')
+def api():
+    """Return a friendly HTTP greeting."""
+    return 'Just reply to simple GET request'
+
+
+@app.route('/api/deviceinfo/<code>')
+def get_device_info(code):
+    s = '---------------------------------------------<br/>'
+    s += '| Device number: ' + code + ' |<br/>'
+    s += '---------------------------------------------<br/>'
+    return s
 
 
 @app.errorhandler(500)
