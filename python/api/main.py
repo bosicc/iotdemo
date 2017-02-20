@@ -18,7 +18,7 @@ import datetime
 
 
 from flask import Flask, request
-from google.cloud import datastore
+# from google.cloud import datastore
 
 
 app = Flask(__name__)
@@ -61,14 +61,14 @@ def add_temperature():
     value = request.form.get('value')
     print("add_temperature() value=" + str(value))
 
-    ds = datastore.Client()
-
-    entity = datastore.Entity(key=ds.key('test'))
-    entity.update({
-        'temperature': value,
-        'timestamp': datetime.datetime.utcnow()
-    })
-    ds.put(entity)
+    # ds = datastore.Client()
+    #
+    # entity = datastore.Entity(key=ds.key('test'))
+    # entity.update({
+    #     'temperature': value,
+    #     'timestamp': datetime.datetime.utcnow()
+    # })
+    # ds.put(entity)
     print("[Done]")
 
     return '200 OK'
