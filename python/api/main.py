@@ -15,7 +15,7 @@
 # [START app]
 import logging
 
-from flask import Flask
+from flask import Flask, request
 
 
 app = Flask(__name__)
@@ -39,6 +39,19 @@ def get_device_info(code):
     s += '| Device number: ' + code + ' |<br/>'
     s += '---------------------------------------------<br/>'
     return s
+
+
+@app.route('/api/add/temperature', methods=['POST'])
+def add_temperature():
+    """request.data Contains the incoming request data as string in case it came with a mimetype Flask does not handle.
+    request.args: the key/value pairs in the URL query string
+    request.form: the key/value pairs in the body, as sent by a HTML POST form
+    request.files: the files in the body, which Flask keeps separate from form.
+    HTML forms must use enctype=multipart/form-data or files will not be uploaded.
+    request.values: combined args and form, preferring args if keys overlap"""
+    value = request.form.get('value')
+    print("value=" + str(value))
+    return '200 OK'
 
 
 @app.errorhandler(500)
