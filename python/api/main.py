@@ -14,8 +14,11 @@
 
 # [START app]
 import logging
+import datetime
+
 
 from flask import Flask, request
+from google.cloud import datastore
 
 
 app = Flask(__name__)
@@ -41,6 +44,12 @@ def get_device_info(code):
     return s
 
 
+@app.route('/api/temperature')
+def get_temperature():
+    val = 100
+    return '{\"temperature\":' + str(val) + '}'
+
+
 @app.route('/api/add/temperature', methods=['POST'])
 def add_temperature():
     """request.data Contains the incoming request data as string in case it came with a mimetype Flask does not handle.
@@ -50,7 +59,18 @@ def add_temperature():
     HTML forms must use enctype=multipart/form-data or files will not be uploaded.
     request.values: combined args and form, preferring args if keys overlap"""
     value = request.form.get('value')
-    print("value=" + str(value))
+    print("add_temperature() value=" + str(value))
+
+    ds = datastore.Client()
+
+    entity = datastore.Entity(key=ds.key('test'))
+    entity.update({
+        'temperature': value,
+        'timestamp': datetime.datetime.utcnow()
+    })
+    ds.put(entity)
+    print("[Done]")
+
     return '200 OK'
 
 
