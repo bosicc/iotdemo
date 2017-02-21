@@ -43,12 +43,15 @@ app = Flask(__name__)
 
 class Data(ndb.Model):
     data = ndb.StringProperty()
-    time = ndb.DateProperty()
+    time = ndb.DateTimeProperty(auto_now_add=True)
+
+    @classmethod
+    def query_last_value(cls):
+        return cls.query().order(-cls.time).fetch(1)
 
 
 def add_entity_temperature(value):
-    data = Data(
-        data=value, time=datetime.datetime.now().date())
+    data = Data(data=value)
     return data.put()
 
 
@@ -74,8 +77,11 @@ def get_device_info(code):
 
 @app.route('/api/temperature')
 def get_temperature():
-    val = 100
-    return '{\"temperature\":' + str(val) + '}'
+    record = Data.query_last_value()
+    answer = "None"
+    if record:
+        answer = str(record[0].data)
+    return '{\"temperature\":' + answer + '}'
 
 
 @app.route('/api/add/temperature', methods=['POST'])
