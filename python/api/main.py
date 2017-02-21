@@ -18,10 +18,38 @@ import datetime
 
 
 from flask import Flask, request
-# from google.cloud import datastore
+# # from google.cloud import datastore
+
+# http://stackoverflow.com/questions/20878885/google-appengine-ext-python-module-importerror-no-module-named-google-appengine
+
+
+# import sys
+# sys.path.insert(1, '/home/bopr/google-cloud-sdk/platform/google_appengine')
+# sys.path.insert(1, '/home/bopr/google-cloud-sdk/platform/google_appengine/lib/yaml/lib')
+# sys.path.insert(1, '/home/bopr/myapp/lib')
+#
+# if 'google' in sys.modules:
+#      del sys.modules['google']
+#      print("Deleted google from sys ")
+#
+# import google
+# print(google.__path__)
+from google.appengine.ext import ndb
+
 
 
 app = Flask(__name__)
+
+
+class Data(ndb.Model):
+    data = ndb.StringProperty()
+    time = ndb.DateProperty()
+
+
+def add_entity_temperature(value):
+    data = Data(
+        data=value, time=datetime.datetime.now().date())
+    return data.put()
 
 
 @app.route('/')
@@ -69,7 +97,10 @@ def add_temperature():
     #     'timestamp': datetime.datetime.utcnow()
     # })
     # ds.put(entity)
-    print("[Done]")
+
+    res = add_entity_temperature(value)
+
+    print("[Done], res=" + res)
 
     return '200 OK'
 
