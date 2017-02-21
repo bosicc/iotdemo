@@ -1,6 +1,5 @@
 package com.ciklum.iotdemo;
 
-import android.app.ProgressDialog;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -8,12 +7,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,14 +17,12 @@ import com.ciklum.iotdemo.backend.ApiService;
 import com.ciklum.iotdemo.backend.Urls;
 import com.ciklum.iotdemo.connectivity.Connection;
 import com.ciklum.iotdemo.connectivity.ConnectionHelper;
-import com.ciklum.iotdemo.connectivity.model.DeviceData;
 
 import java.util.Arrays;
 import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -47,22 +40,11 @@ public class MainActivity extends AppCompatActivity {
     private boolean isScanning;
     @BindView(R.id.container)
     RelativeLayout container;
-    @BindView(R.id.connection_status_view)
-    View statusView;
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
     @BindView(R.id.temperature_view)
     TextView temperatureView;
-    @BindView(R.id.connect_btn)
-    Button connectBtn;
-    private ProgressDialog progressDialog;
-    private DeviceData device;
     private Connection.ScanCallback scanCallback = new Connection.ScanCallback() {
         @Override
-        public void deviceDiscovered(@NonNull DeviceData deviceData, @NonNull byte[] scanRecord) {
-            if (deviceData.getAddress().equals(device.getAddress())) {
-                connectBtn.setEnabled(true);
-            }
+        public void deviceDiscovered(@NonNull byte[] scanRecord) {
             if (scanRecord.length > 14) {
                 if (scanRecord[13] == (byte) 0x4E && scanRecord[14] == (byte) 0xFF) {
                     byte[] data = Arrays.copyOfRange(scanRecord, 15, 23);
@@ -80,32 +62,6 @@ public class MainActivity extends AppCompatActivity {
             return b & 0xFF;
         }
     };
-    private Connection.DeviceCallback callback = new Connection.DeviceCallback() {
-
-        @Override
-        public void connected(@NonNull DeviceData deviceData) {
-            deviceConnected();
-        }
-
-        @Override
-        public void disconnected() {
-            deviceDisconnected();
-        }
-    };
-
-    @OnClick(R.id.connect_btn)
-    public void onConnectClick() {
-        if (checkIfBleEnabled()) {
-            if (connectionHelper.isConnected()) {
-                Log.i(TAG, "onConnectClick: disconnect");
-                connectionHelper.disconnect();
-            } else {
-                progressDialog.show();
-                Log.i(TAG, "onConnectClick: connect");
-                connectionHelper.connect(device);
-            }
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,17 +69,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        toolbar.setTitle(R.string.app_name);
-
-        device = new DeviceData(getString(R.string.neopenda_address), getString(R.string.neopenda_name));
         connectionHelper = ConnectionHelper.getInstance(getApplicationContext());
-        connectionHelper.addDeviceCallback(callback);
         connectionHelper.setScanningCallback(scanCallback);
-        connectionHelper.onStart();
-
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage(getString(R.string.connecting));
-        progressDialog.setCancelable(false);
     }
 
     @Override
@@ -140,25 +87,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        connectionHelper.onStop();
-        connectionHelper.removeDeviceCallback(callback);
         if (isScanning) {
             isScanning = false;
             connectionHelper.stopScan();
         }
-    }
-
-    public void deviceDisconnected() {
-        statusView.setBackground(ContextCompat.getDrawable(this, R.drawable.status_disconnected));
-        connectBtn.setText(R.string.text_connect);
-        connectBtn.setEnabled(false);
-        progressDialog.dismiss();
-    }
-
-    public void deviceConnected() {
-        statusView.setBackground(ContextCompat.getDrawable(this, R.drawable.status_connected));
-        connectBtn.setText(R.string.text_disconnect);
-        progressDialog.dismiss();
     }
 
     private void sendTemperature(float value) {
@@ -169,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         ApiService apiService = retrofit.create(ApiService.class);
 
-        Call<ResponseBody> call = apiService.post(value);
+        Call<ResponseBody> call = apiService.post(String.valueOf(value));
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {

@@ -4,14 +4,13 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import com.ciklum.iotdemo.connectivity.btle.BTLEConnection;
-import com.ciklum.iotdemo.connectivity.model.DeviceData;
 
 public class ConnectionHelper implements Connection {
     private static ConnectionHelper instance;
     private Connection connection;
 
     private ConnectionHelper(Context context) {
-                connection = BTLEConnection.getInstance(context);
+        connection = BTLEConnection.getInstance(context);
     }
 
     public static ConnectionHelper getInstance(Context context) {
@@ -19,21 +18,6 @@ public class ConnectionHelper implements Connection {
             instance = new ConnectionHelper(context);
         }
         return instance;
-    }
-
-    @Override
-    public void connect(@NonNull DeviceData deviceData) {
-        connection.connect(deviceData);
-    }
-
-    @Override
-    public void disconnect() {
-        connection.disconnect();
-    }
-
-    @Override
-    public boolean isConnected() {
-        return connection.isConnected();
     }
 
     @Override
@@ -49,25 +33,5 @@ public class ConnectionHelper implements Connection {
     @Override
     public void stopScan() {
         connection.stopScan();
-    }
-
-    @Override
-    public void onStart() {
-        connection.onStart();
-    }
-
-    @Override
-    public void onStop() {
-        connection.onStop();
-    }
-
-    @Override
-    public void addDeviceCallback(@NonNull DeviceCallback deviceCallback) {
-        connection.addDeviceCallback(deviceCallback);
-    }
-
-    @Override
-    public void removeDeviceCallback(@NonNull DeviceCallback deviceCallback) {
-        connection.removeDeviceCallback(deviceCallback);
     }
 }

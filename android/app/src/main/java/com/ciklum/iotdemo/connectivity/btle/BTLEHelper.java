@@ -11,25 +11,23 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.os.Build;
 import android.os.ParcelUuid;
-import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
+import com.ciklum.iotdemo.R;
 import com.ciklum.iotdemo.connectivity.Connection;
-import com.ciklum.iotdemo.connectivity.model.DeviceData;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 class BTLEHelper {
-    public static final String TAG = BTLEHelper.class.getSimpleName();
+    private static final String TAG = BTLEHelper.class.getSimpleName();
     private static final UUID DEVICE_UUID = UUID.fromString("0000180a-0000-1000-8000-00805f9b34fb");
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothAdapter.LeScanCallback scanCallback;
     private BluetoothLeScanner leScanner; // for api >= 21
     private ScanCallback scanCallbackV21; // for api >= 21
-    private BTLEGatt btleGatt;
     private Connection.ScanCallback sCallback;
     private Context context;
 
@@ -37,7 +35,6 @@ class BTLEHelper {
         this.context = context;
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
-        btleGatt = new BTLEGatt(context, bluetoothAdapter);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             initScanCallbackV21();
         } else {
@@ -86,7 +83,7 @@ class BTLEHelper {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
                 super.onScanResult(callbackType, result);
-                byte [] data = new byte[]{};
+                byte[] data = new byte[]{};
                 if (result.getScanRecord() != null) {
                     data = result.getScanRecord().getBytes();
                 }
@@ -118,22 +115,9 @@ class BTLEHelper {
         }
     }
 
-    boolean connect(@NonNull DeviceData deviceData) {
-        Log.d(TAG, "connect: ");
-        return btleGatt.connect(deviceData);
-    }
-
-    void disconnect() {
-        Log.d(TAG, "disconnect: ");
-        if (btleGatt != null) {
-            btleGatt.disconnect();
-        }
-    }
-
-    private void deviceDiscovered(BluetoothDevice device, byte [] data) {
-        DeviceData deviceData = new DeviceData(device.getAddress(), device.getName());
-        if (sCallback != null) {
-            sCallback.deviceDiscovered(deviceData, data);
+    private void deviceDiscovered(BluetoothDevice device, byte[] data) {
+        if (sCallback != null && device.getAddress().equals(context.getString(R.string.neopenda_address))) {
+            sCallback.deviceDiscovered(data);
         }
     }
 
