@@ -87,7 +87,7 @@ def add_temperature():
     HTML forms must use enctype=multipart/form-data or files will not be uploaded.
     request.values: combined args and form, preferring args if keys overlap"""
     value = request.form.get('value')
-    print("add_temperature() value=" + str(value))
+    logging.info("add_temperature() value=" + str(value))
 
     # ds = datastore.Client()
     #
@@ -100,7 +100,8 @@ def add_temperature():
 
     res = add_entity_temperature(value)
 
-    print("[Done], res=" + res)
+    # print("[Done], res=" + str(res))
+    logging.debug("[Done], res=" + str(res))
 
     return '200 OK'
 
