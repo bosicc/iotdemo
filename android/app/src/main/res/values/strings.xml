@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">IoTDemo</string>
+    <string name="text_temperature">Temperature</string>
+    <string name="text_temperature_value">%1$s</string>
+    <string name="text_connect">Connect</string>
+    <string name="text_disconnect">Disconnect</string>
+    <string name="error_bluetooth">Bluetooth disabled</string>
+
+    <string name="neopenda_address">C9:65:15:55:EF:F1</string>
+    <string name="neopenda_name">Neopenda</string>
+    <string name="connecting">Connecting</string>
+</resources>
